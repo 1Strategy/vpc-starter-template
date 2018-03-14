@@ -48,7 +48,7 @@ To deploy this VPC template, you'll need to know the VPC CIDR block, the three p
 | _PrivateAZASubnetBlock_   | AZ A private subnet block    | 10.0.64.0/19 |
 | _PrivateAZBSubnetBlock_   | AZ B private subnet block    |      ""      |
 | _PrivateAZCSubnetBlock_   | AZ C private subnet block    |      ""      |
-|
+
 
 To make it easier to specify these parameters on the command line, you can use the example Parameters files included in the `parameters/` directory.
 
@@ -97,7 +97,6 @@ This VPC template exports the following values for use in other CloudFormaton te
 | _main-vpc-private-AZ-A-rtb_    | Route table for private subnets in AZ A              | rtb-abcd1234    |
 | _main-vpc-private-AZ-B-rtb_    | Route table for private subnets in AZ B              |        ""       |
 | _main-vpc-private-AZ-C-rtb_    | Route table for private subnets in AZ C              |        ""       |
-|                                |                                                      |                 |
 
 ## License
 
