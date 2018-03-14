@@ -82,7 +82,7 @@ aws cloudformation update-stack --template-body file://network.yaml --stack-name
 
 AWS CloudFormation supports [exporting Resource names and properties](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-exports.html). You can import these [Cross-Stack References](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html) in other templates.
 
-This VPC template exports the following values for use in other CloudFormaton templates. Each export is prefixed with the **Stack Name**. For example if you name the stack "main-vpc" when you launch it, the VPC's public route table will be exported as "_main-vpc-public-RouteTable_"
+This VPC template exports the following values for use in other CloudFormaton templates. Each export is prefixed with the **Stack Name**. For example, if you name the stack "main-vpc" when you launch it, the VPC's public route table will be exported as "_main-vpc-public-rtb_"
 
 | Export                         | Description                                          | Example         |
 |--------------------------------|------------------------------------------------------|-----------------|
