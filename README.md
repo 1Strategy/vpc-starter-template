@@ -31,6 +31,8 @@ Virginia (us-east-1): 10.64.0.0/16
 
 See the AWS [VPC sizing docs](https://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html#vpc-sizing-ipv4) for more info.
 
+You are free to use any /16 to /28 CIDR block in the RFC 1918 private address range, but the VPC CIDR range you pick for this template **should not** overlap with any existing IP CIDR address ranges, either on-prem or in another AWS VPC.
+
 ---
 
 ## VPC Template Parameters
