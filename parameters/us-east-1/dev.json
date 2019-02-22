@@ -26,5 +26,9 @@
     {
         "ParameterKey": "PublicAZCSubnetBlock",
         "ParameterValue": "10.64.160.0/20"
+    },
+    {
+        "ParameterKey": "NatGatewayCount",
+        "ParameterValue": "3"
     }
 ]
