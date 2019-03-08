@@ -48,7 +48,7 @@ To deploy this VPC template, you'll need to know the VPC CIDR block, the three p
 | _PrivateAZASubnetBlock_   | AZ A private subnet block    | 10.0.64.0/19 |
 | _PrivateAZBSubnetBlock_   | AZ B private subnet block    |      ""      |
 | _PrivateAZCSubnetBlock_   | AZ C private subnet block    |      ""      |
-| _HighlyAvailableNat_      | Highly Available NAT config  |     true     |
+| _HighlyAvailable_         | Highly Available NAT config  |     true     |
 
 
 To make it easier to specify these parameters on the command line, you can use the example Parameters files included in the `parameters/` directory.
