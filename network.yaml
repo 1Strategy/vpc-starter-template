@@ -25,7 +25,7 @@ Parameters:
     AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
     ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
 
-# Public Subnets
+  # Public Subnets
   PublicAZASubnetBlock:
     Type: String
     Description: Subnet CIDR for first Availability Zone
@@ -44,7 +44,7 @@ Parameters:
     AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
     ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
 
-# Private Subnets
+  # Private Subnets
   PrivateAZASubnetBlock:
     Type: String
     Description: Subnet CIDR for first Availability Zone (e.g. us-west-2a, us-east-1b)
@@ -62,6 +62,16 @@ Parameters:
     Description: Subnet CIDR for third Availability Zone, (e.g. us-west-2c, us-east-1d)
     AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
     ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
+
+  HighlyAvailableNat:
+    Type: String
+    Description: Optional configuration for a highly available NAT Gateway setup. Default configuration is a single NAT Gateway in Subnet A. The highly available option will configure a NAT Gateway in each of the Subnets.
+    AllowedPattern: "^(true|false)$"
+    Default: "false"
+    ConstraintDescription: must be true or false (case sensitive).
+
+Conditions:
+  HighlyAvailable: !Equals [!Ref HighlyAvailableNat, "true"]
 
 Outputs:
   VpcId:
@@ -143,8 +153,8 @@ Resources:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
-      - Key: Name
-        Value: !Sub ${AWS::StackName}
+        - Key: Name
+          Value: !Sub ${AWS::StackName}
 
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -152,7 +162,7 @@ Resources:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref Vpc
 
-# Public Subnets - Route Table
+  # Public Subnets - Route Table
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -171,7 +181,7 @@ Resources:
       GatewayId: !Ref InternetGateway
     DependsOn: VPCGatewayAttachment
 
-# Public Subnets
+  # Public Subnets
   # First Availability Zone
   PublicAZASubnet:
     Type: AWS::EC2::Subnet
@@ -238,8 +248,8 @@ Resources:
       SubnetId: !Ref PublicAZCSubnet
       RouteTableId: !Ref PublicRouteTable
 
-# Private Subnets - NAT Gateways
- # First Availability Zone
+  # Private Subnets - NAT Gateways
+  # First Availability Zone
   AZANatGatewayEIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -252,34 +262,37 @@ Resources:
       AllocationId: !GetAtt AZANatGatewayEIP.AllocationId
       SubnetId: !Ref PublicAZASubnet
 
- # Second Availability Zone
+  # Second Availability Zone
   AZBNatGatewayEIP:
     Type: AWS::EC2::EIP
+    Condition: HighlyAvailable
     Properties:
       Domain: vpc
     DependsOn: VPCGatewayAttachment
 
   AZBNatGateway:
     Type: AWS::EC2::NatGateway
+    Condition: HighlyAvailable
     Properties:
       AllocationId: !GetAtt AZBNatGatewayEIP.AllocationId
       SubnetId: !Ref PublicAZBSubnet
 
- # Third Availability Zone
+  # Third Availability Zone
   AZCNatGatewayEIP:
     Type: AWS::EC2::EIP
+    Condition: HighlyAvailable
     Properties:
       Domain: vpc
     DependsOn: VPCGatewayAttachment
 
   AZCNatGateway:
     Type: AWS::EC2::NatGateway
+    Condition: HighlyAvailable
     Properties:
       AllocationId: !GetAtt AZCNatGatewayEIP.AllocationId
       SubnetId: !Ref PublicAZCSubnet
 
-
-# Private Subnets
+  # Private Subnets
   # First Availability Zone
   PrivateAZASubnet:
     Type: AWS::EC2::Subnet
@@ -349,6 +362,7 @@ Resources:
 
   PrivateAZBRoute:
     Type: AWS::EC2::Route
+    Condition: HighlyAvailable
     Properties:
       RouteTableId: !Ref PrivateAZBRouteTable
       DestinationCidrBlock: 0.0.0.0/0
@@ -356,6 +370,7 @@ Resources:
 
   PrivateAZBRTA:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: HighlyAvailable
     Properties:
       SubnetId: !Ref PrivateAZBSubnet
       RouteTableId: !Ref PrivateAZBRouteTable
@@ -389,6 +404,7 @@ Resources:
 
   PrivateAZCRoute:
     Type: AWS::EC2::Route
+    Condition: HighlyAvailable
     Properties:
       RouteTableId: !Ref PrivateAZCRouteTable
       DestinationCidrBlock: 0.0.0.0/0
@@ -396,6 +412,7 @@ Resources:
 
   PrivateAZCRTA:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: HighlyAvailable
     Properties:
       SubnetId: !Ref PrivateAZCSubnet
       RouteTableId: !Ref PrivateAZCRouteTable
@@ -409,9 +426,9 @@ Resources:
         - !Ref PrivateAZBRouteTable
         - !Ref PrivateAZCRouteTable
       ServiceName: !Join
-        - ''
+        - ""
         - - com.amazonaws.
-          - !Ref 'AWS::Region'
+          - !Ref "AWS::Region"
           - .s3
       VpcId: !Ref Vpc
 
@@ -424,9 +441,8 @@ Resources:
         - !Ref PrivateAZBRouteTable
         - !Ref PrivateAZCRouteTable
       ServiceName: !Join
-        - ''
+        - ""
         - - com.amazonaws.
-          - !Ref 'AWS::Region'
+          - !Ref "AWS::Region"
           - .dynamodb
       VpcId: !Ref Vpc
-...

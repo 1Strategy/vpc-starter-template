@@ -37,7 +37,7 @@ You are free to use any /16 to /28 CIDR block in the RFC 1918 private address ra
 
 ## VPC Template Parameters
 
-To deploy this VPC template, you'll need to know the VPC CIDR block, the three public, and three private subnet CIDR blocks.
+To deploy this VPC template, you'll need to know the VPC CIDR block, the three public, and three private subnet CIDR blocks. You will also choose whether the VPC will support highly available NAT Gateways, or, by default, a more cost effective single NAT Gateway.
 
 | Parameter                 | Description                  | Example      |
 |---------------------------|------------------------------|--------------|
@@ -48,6 +48,7 @@ To deploy this VPC template, you'll need to know the VPC CIDR block, the three p
 | _PrivateAZASubnetBlock_   | AZ A private subnet block    | 10.0.64.0/19 |
 | _PrivateAZBSubnetBlock_   | AZ B private subnet block    |      ""      |
 | _PrivateAZCSubnetBlock_   | AZ C private subnet block    |      ""      |
+| _HighlyAvailable_         | Highly Available NAT config  |     true     |
 
 
 To make it easier to specify these parameters on the command line, you can use the example Parameters files included in the `parameters/` directory.
