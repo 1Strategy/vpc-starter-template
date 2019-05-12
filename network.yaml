@@ -72,7 +72,7 @@ Parameters:
 
 Conditions:
   HighlyAvailable: !Equals [!Ref HighlyAvailableNat, "true"]
-
+  NotHighlyAvailable: !Equals [!Ref HighlyAvailableNat, "false"]
 Outputs:
   VpcId:
     Description: VPC Id
@@ -198,7 +198,7 @@ Resources:
         - Key: Type
           Value: public
 
-  PublicAZASubnetRTA:
+  PublicAZASubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicAZASubnet
@@ -220,7 +220,7 @@ Resources:
         - Key: Type
           Value: public
 
-  PublicAZBSubnetRTA:
+  PublicAZBSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicAZBSubnet
@@ -242,7 +242,7 @@ Resources:
         - Key: Type
           Value: public
 
-  PublicAZCSubnetRTA:
+  PublicAZCSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicAZCSubnet
@@ -327,7 +327,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref AZANatGateway
 
-  PrivateAZARTA:
+  PrivateAZARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateAZASubnet
@@ -368,9 +368,24 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref AZBNatGateway
 
-  PrivateAZBRTA:
+  PrivateAZBRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Condition: HighlyAvailable
+    Properties:
+      SubnetId: !Ref PrivateAZBSubnet
+      RouteTableId: !Ref PrivateAZBRouteTable
+
+  NotHighlyAvailablePrivateAZBRoute:
+    Type: AWS::EC2::Route
+    Condition: NotHighlyAvailable
+    Properties:
+      RouteTableId: !Ref PrivateAZBRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref AZANatGateway
+
+  NotHighlyAvailablePrivateAZBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: NotHighlyAvailable
     Properties:
       SubnetId: !Ref PrivateAZBSubnet
       RouteTableId: !Ref PrivateAZBRouteTable
@@ -410,12 +425,28 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref AZCNatGateway
 
-  PrivateAZCRTA:
+  PrivateAZCRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Condition: HighlyAvailable
     Properties:
       SubnetId: !Ref PrivateAZCSubnet
       RouteTableId: !Ref PrivateAZCRouteTable
+  
+  NotHighlyAvailablePrivateAZCRoute:
+    Type: AWS::EC2::Route
+    Condition: NotHighlyAvailable
+    Properties:
+      RouteTableId: !Ref PrivateAZCRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref AZANatGateway
+
+  NotHighlyAvailablePrivateAZCRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: NotHighlyAvailable
+    Properties:
+      SubnetId: !Ref PrivateAZCSubnet
+      RouteTableId: !Ref PrivateAZCRouteTable
+
 
   S3VPCEndpoint:
     Type: "AWS::EC2::VPCEndpoint"
