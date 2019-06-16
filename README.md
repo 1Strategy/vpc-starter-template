@@ -2,6 +2,17 @@
 
 This branch is to support deployment of VPCs across accounts via stacksets as well as including additional templates to integrate a centralized transit gateway and update the associated routes into into the existing route tables.
 
+Templates are to be deployed in the following order:
+
+1. network-shared-services-transit-gateway.yaml - deploy into the shared services or organizational root account
+
+### Please note that you will have to accept the invitations for the Transit Gateway in EACH of the child accounts before proceeding
+### They will be visible here: https://us-west-2.console.aws.amazon.com/ram/home?region=us-west-2
+
+2. network-stackset-vpc.yaml - deploy into each of the child accounts via stacksets
+3. network-stackset-transit-gateway.yaml - deploy into each of the child accounts via stacksets. You will need to provide as a parameter the transit gateway
+identifier (tgw-abc123) from the first template.
+
 # 1Strategy AWS VPC template
 
 This VPC template is a complete CloudFormation template to build out a VPC network with public and private subnets in three AWS Availability Zones.
