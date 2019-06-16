@@ -1,3 +1,7 @@
+# Notes for Branch
+
+This branch is to support deployment of VPCs across accounts via stacksets as well as including additional templates to integrate a centralized transit gateway and update the associated routes into into the existing route tables.
+
 # 1Strategy AWS VPC template
 
 This VPC template is a complete CloudFormation template to build out a VPC network with public and private subnets in three AWS Availability Zones.
@@ -87,17 +91,17 @@ This VPC template exports the following values for use in other CloudFormaton te
 
 | Export                         | Description                                          | Example         |
 |--------------------------------|------------------------------------------------------|-----------------|
-| _main-vpc-VpcId_               | VPC Id                                               | vpc-1234abcd    |
-| _main-vpc-public-rtb_          | Public Route table Id (shared by all public subnets) | rtb-1234abcd    |
-| _main-vpc-public-AZ-A-subnet_  | AZ A public subnet Id                                | subnet-1234abcd |
-| _main-vpc-public-AZ-B-subnet_  | AZ B public subnet Id                                |        ""       |
-| _main-vpc-public-AZ-C-subnet_  | AZ C public subnet Id                                |        ""       |
-| _main-vpc-private-AZ-A-subnet_ | AZ A private subnet Id                               | subnet-abcd1234 |
-| _main-vpc-private-AZ-B-subnet_ | AZ A private subnet Id                               |        ""       |
-| _main-vpc-private-AZ-C-subnet_ | AZ A private subnet Id                               |        ""       |
-| _main-vpc-private-AZ-A-rtb_    | Route table for private subnets in AZ A              | rtb-abcd1234    |
-| _main-vpc-private-AZ-B-rtb_    | Route table for private subnets in AZ B              |        ""       |
-| _main-vpc-private-AZ-C-rtb_    | Route table for private subnets in AZ C              |        ""       |
+| _vpc-id_               | VPC Id                                               | vpc-1234abcd    |
+| _public-rtb_          | Public Route table Id (shared by all public subnets) | rtb-1234abcd    |
+| _public-az-a-subnet_  | AZ A public subnet Id                                | subnet-1234abcd |
+| _public-az-b-subnet_  | AZ B public subnet Id                                |        ""       |
+| _public-az-c-subnet_  | AZ C public subnet Id                                |        ""       |
+| _private-az-a-subnet_ | AZ A private subnet Id                               | subnet-abcd1234 |
+| _private-az-b-subnet_ | AZ A private subnet Id                               |        ""       |
+| _private-az-c-subnet_ | AZ A private subnet Id                               |        ""       |
+| _private-az-a-rtb_    | Route table for private subnets in AZ A              | rtb-abcd1234    |
+| _private-az-b-rtb_    | Route table for private subnets in AZ B              |        ""       |
+| _private-az-c-rtb_    | Route table for private subnets in AZ C              |        ""       |
 
 ## License
 
