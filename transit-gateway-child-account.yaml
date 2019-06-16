@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Some template
+Parameters:
+  SharedTransitGatewayId:
+    Type: String
+    Default: tgw-0160ea24f11091888
+  CidrToRouteAcrossTransitGateway:
+    Type: String
+    Default: 1.1.1.0/24
+  PrivateSubnetsRoutesOnly:
+    Type: String
+    AllowedValues: ["true","false"]
+    Default: "true"
+Conditions:
+  AddRouteToPublicSubnets: !Not [!Equals [!Ref PrivateSubnetsRoutesOnly, "true"]]
+
+Resources:
+  TransitGatewayAttachment:
+    Type: AWS::EC2::TransitGatewayAttachment
+    Properties: 
+      SubnetIds: 
+        - !ImportValue private-az-a-subnet
+        - !ImportValue private-az-b-subnet         
+        - !ImportValue private-az-c-subnet
+      Tags: 
+        - Key: Name
+          Value: transit-gateway-attachment
+      TransitGatewayId: !Ref SharedTransitGatewayId
+      VpcId: !ImportValue vpc-id
+
+  PrivateSubnetAzARouteToTransitGateway:
+    DependsOn: TransitGatewayAttachment
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: !Ref CidrToRouteAcrossTransitGateway
+      TransitGatewayId: !Ref SharedTransitGatewayId
+      RouteTableId: !ImportValue private-az-a-rtb
+
+  PrivateSubnetAzBRouteToTransitGateway:
+    DependsOn: TransitGatewayAttachment
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: !Ref CidrToRouteAcrossTransitGateway
+      TransitGatewayId: !Ref SharedTransitGatewayId
+      RouteTableId: !ImportValue private-az-b-rtb
+
+  PrivateSubnetAzCRouteToTransitGateway:
+    DependsOn: TransitGatewayAttachment
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: !Ref CidrToRouteAcrossTransitGateway
+      TransitGatewayId: !Ref SharedTransitGatewayId
+      RouteTableId: !ImportValue private-az-c-rtb
+  
+  PublicSubnetRouteToTransitGateway:
+    Condition: AddRouteToPublicSubnets
+    DependsOn: TransitGatewayAttachment
+    Type: AWS::EC2::Route
+    Properties: 
+      DestinationCidrBlock: !Ref CidrToRouteAcrossTransitGateway
+      TransitGatewayId: !Ref SharedTransitGatewayId
+      RouteTableId: !ImportValue public-rtb

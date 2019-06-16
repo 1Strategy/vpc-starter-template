@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >
+  Creates transit gateway in the AWS organizational root or shared services accountnt and associated resource share.
+Parameters:
+  AllowedAccounts:
+    Type: List<String>
+    Default: '012345678910,11111111111,22222222222'
+Resources:
+  TransitGateway:
+    Type: AWS::EC2::TransitGateway
+    Properties:
+      AutoAcceptSharedAttachments: enable
+      DefaultRouteTableAssociation: enable
+      DefaultRouteTablePropagation: enable
+      Description: Cross Account Transit Gateway
+      DnsSupport: enable
+      Tags:
+        - Key: Name
+          Value: transit-gateway
+      VpnEcmpSupport: enable
+
+  TransitGatewayResourceShare:
+    Type: "AWS::RAM::ResourceShare"
+    Properties:
+      Name: "Shared Services Transit Gateway"
+      ResourceArns:
+        - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:transit-gateway/${TransitGateway}"
+      Principals: !Ref AllowedAccounts
