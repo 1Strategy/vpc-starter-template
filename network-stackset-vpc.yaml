@@ -17,134 +17,113 @@ Description: >
   Creates a VPC with public and private subnets for a given AWS Account.
   This template incorporates many design ideas from this excellent blog post:
     https://medium.com/aws-activate-startup-blog/practical-vpc-design-8412e1a18dcc#.g0txo2p4v
-
-Parameters:
-  VpcCidrParam:
-    Type: String
-    Description: VPC CIDR. For more info, see http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_Subnets.html#VPC_Sizing
-    AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
-    ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
-
-  # Public Subnets
-  PublicAZASubnetBlock:
-    Type: String
-    Description: Subnet CIDR for first Availability Zone
-    AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
-    ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
-
-  PublicAZBSubnetBlock:
-    Type: String
-    Description: Subnet CIDR for second Availability Zone
-    AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
-    ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
-
-  PublicAZCSubnetBlock:
-    Type: String
-    Description: Subnet CIDR for third Availability Zone
-    AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
-    ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
-
-  # Private Subnets
-  PrivateAZASubnetBlock:
-    Type: String
-    Description: Subnet CIDR for first Availability Zone (e.g. us-west-2a, us-east-1b)
-    AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
-    ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
-
-  PrivateAZBSubnetBlock:
-    Type: String
-    Description: Subnet CIDR for second Availability Zone (e.g. us-west-2b, us-east-1c)
-    AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
-    ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
-
-  PrivateAZCSubnetBlock:
-    Type: String
-    Description: Subnet CIDR for third Availability Zone, (e.g. us-west-2c, us-east-1d)
-    AllowedPattern: "^(10|172|192)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\/(16|17|18|19|20|21|22|23|24|25|26|27|28)$"
-    ConstraintDescription: must be valid IPv4 CIDR block (/16 to /28) from the private address ranges defined in RFC 1918.
-
-  HighlyAvailableNat:
-    Type: String
-    Description: Optional configuration for a highly available NAT Gateway setup. Default configuration is a single NAT Gateway in Subnet A. The highly available option will configure a NAT Gateway in each of the Subnets.
-    AllowedPattern: "^(true|false)$"
-    Default: "false"
-    ConstraintDescription: must be true or false (case sensitive).
+Mappings:
+  AccountMap:
+    '842337631775':
+      VpcCidrParam: '10.0.0.0/16'
+      PublicAZASubnetBlock: '10.0.1.0/24'
+      PublicAZBSubnetBlock: '10.0.2.0/24'
+      PublicAZCSubnetBlock: '10.0.3.0/24'
+      PrivateAZASubnetBlock: '10.0.4.0/24'
+      PrivateAZBSubnetBlock: '10.0.5.0/24'
+      PrivateAZCSubnetBlock: '10.0.6.0/24'
+      HighlyAvailableNat: true
+    '111111111111':
+      VpcCidrParam: '10.1.0.0/16'
+      PublicAZASubnetBlock: '10.1.1.0/24'
+      PublicAZBSubnetBlock: '10.1.2.0/24'
+      PublicAZCSubnetBlock: '10.1.3.0/24'
+      PrivateAZASubnetBlock: '10.1.4.0/24'
+      PrivateAZBSubnetBlock: '10.1.5.0/24'
+      PrivateAZCSubnetBlock: '10.1.6.0/24'
+      HighlyAvailableNat: false
+    '22222222222':
+      VpcCidrParam: '10.2.0.0/16'
+      PublicAZASubnetBlock: '10.2.1.0/24'
+      PublicAZBSubnetBlock: '10.2.2.0/24'
+      PublicAZCSubnetBlock: '10.2.3.0/24'
+      PrivateAZASubnetBlock: '10.2.4.0/24'
+      PrivateAZBSubnetBlock: '10.2.5.0/24'
+      PrivateAZCSubnetBlock: '10.2.6.0/24'
+      HighlyAvailableNat: false
 
 Conditions:
-  HighlyAvailable: !Equals [!Ref HighlyAvailableNat, "true"]
-  NotHighlyAvailable: !Equals [!Ref HighlyAvailableNat, "false"]
+  HighlyAvailable: !Equals [ !FindInMap [AccountMap, !Ref 'AWS::AccountId', HighlyAvailableNat], "true"]
+  NotHighlyAvailable: !Equals [ !FindInMap [AccountMap, !Ref 'AWS::AccountId', HighlyAvailableNat], "false"]
 Outputs:
   VpcId:
     Description: VPC Id
     Value: !Ref Vpc
     Export:
-      Name: !Sub "${AWS::StackName}-vpc-id"
+      Name: !Sub "vpc-id"
 
   PublicRouteTableId:
     Description: Route Table for public subnets
     Value: !Ref PublicRouteTable
     Export:
-      Name: !Sub "${AWS::StackName}-public-rtb"
+      Name: !Sub "public-rtb"
 
   PublicAZASubnetId:
     Description: Availability Zone A public subnet Id
     Value: !Ref PublicAZASubnet
     Export:
-      Name: !Sub "${AWS::StackName}-public-az-a-subnet"
+      Name: !Sub "public-az-a-subnet"
 
   PublicAZBSubnetId:
     Description: Availability Zone B public subnet Id
     Value: !Ref PublicAZBSubnet
     Export:
-      Name: !Sub "${AWS::StackName}-public-az-b-subnet"
+      Name: !Sub "public-az-b-subnet"
 
   PublicAZCSubnetId:
     Description: Availability Zone C public subnet Id
     Value: !Ref PublicAZCSubnet
     Export:
-      Name: !Sub "${AWS::StackName}-public-az-c-subnet"
+      Name: !Sub "public-az-c-subnet"
 
   PrivateAZASubnetId:
     Description: Availability Zone A private subnet Id
     Value: !Ref PrivateAZASubnet
     Export:
-      Name: !Sub "${AWS::StackName}-private-az-a-subnet"
+      Name: !Sub "private-az-a-subnet"
 
   PrivateAZBSubnetId:
     Description: Availability Zone B private subnet Id
     Value: !Ref PrivateAZBSubnet
     Export:
-      Name: !Sub "${AWS::StackName}-private-az-b-subnet"
+      Name: !Sub "private-az-b-subnet"
 
   PrivateAZCSubnetId:
     Description: Availability Zone C private subnet Id
     Value: !Ref PrivateAZCSubnet
     Export:
-      Name: !Sub "${AWS::StackName}-private-az-c-subnet"
+      Name: !Sub "private-az-c-subnet"
 
   PrivateAZARouteTableId:
     Description: Route table for private subnets in AZ A
     Value: !Ref PrivateAZARouteTable
     Export:
-      Name: !Sub "${AWS::StackName}-private-az-a-rtb"
+      Name: !Sub "private-az-a-rtb"
 
   PrivateAZBRouteTableId:
+    Condition: HighlyAvailable
     Description: Route table for private subnets in AZ B
     Value: !Ref PrivateAZBRouteTable
     Export:
-      Name: !Sub "${AWS::StackName}-private-az-b-rtb"
+      Name: !Sub "private-az-b-rtb"
 
   PrivateAZCRouteTableId:
+    Condition: HighlyAvailable
     Description: Route table for private subnets in AZ C
     Value: !Ref PrivateAZCRouteTable
     Export:
-      Name: !Sub "${AWS::StackName}-private-az-c-rtb"
+      Name: !Sub "private-az-c-rtb"
 
 Resources:
   Vpc:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VpcCidrParam
+      CidrBlock: !FindInMap [AccountMap, !Ref 'AWS::AccountId', VpcCidrParam]
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}
@@ -169,7 +148,7 @@ Resources:
       VpcId: !Ref Vpc
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}-public
+          Value: !Sub public
         - Key: Type
           Value: public
 
@@ -187,13 +166,13 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref Vpc
-      CidrBlock: !Ref PublicAZASubnetBlock
+      CidrBlock: !FindInMap [AccountMap, !Ref 'AWS::AccountId', PublicAZASubnetBlock]
       AvailabilityZone: !Select [0, !GetAZs ""]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-public-${AZ}
+            - public-${AZ}
             - { AZ: !Select [0, !GetAZs ""] }
         - Key: Type
           Value: public
@@ -209,13 +188,13 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref Vpc
-      CidrBlock: !Ref PublicAZBSubnetBlock
+      CidrBlock: !FindInMap [AccountMap, !Ref 'AWS::AccountId', PublicAZBSubnetBlock]
       AvailabilityZone: !Select [1, !GetAZs ""]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-public-${AZ}
+            - public-${AZ}
             - { AZ: !Select [1, !GetAZs ""] }
         - Key: Type
           Value: public
@@ -231,13 +210,13 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref Vpc
-      CidrBlock: !Ref PublicAZCSubnetBlock
+      CidrBlock: !FindInMap [AccountMap, !Ref 'AWS::AccountId', PublicAZCSubnetBlock]
       AvailabilityZone: !Select [2, !GetAZs ""]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-public-${AZ}
+            - public-${AZ}
             - { AZ: !Select [2, !GetAZs ""] }
         - Key: Type
           Value: public
@@ -298,12 +277,12 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref Vpc
-      CidrBlock: !Ref PrivateAZASubnetBlock
+      CidrBlock: !FindInMap [AccountMap, !Ref 'AWS::AccountId', PrivateAZASubnetBlock]
       AvailabilityZone: !Select [0, !GetAZs ""]
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-private-${AZ}
+            - private-${AZ}
             - { AZ: !Select [0, !GetAZs ""] }
         - Key: Type
           Value: private
@@ -315,7 +294,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-private-${AZ}
+            - private-${AZ}
             - { AZ: !Select [0, !GetAZs ""] }
         - Key: Type
           Value: private
@@ -338,81 +317,75 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref Vpc
-      CidrBlock: !Ref PrivateAZBSubnetBlock
+      CidrBlock: !FindInMap [AccountMap, !Ref 'AWS::AccountId', PrivateAZBSubnetBlock]
       AvailabilityZone: !Select [1, !GetAZs ""]
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-private-${AZ}
+            - private-${AZ}
             - { AZ: !Select [1, !GetAZs ""] }
         - Key: Type
           Value: private
 
   PrivateAZBRouteTable:
+    Condition: HighlyAvailable
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref Vpc
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-private-${AZ}
+            - private-${AZ}
             - { AZ: !Select [1, !GetAZs ""] }
         - Key: Type
           Value: private
 
   PrivateAZBRoute:
-    Type: AWS::EC2::Route
     Condition: HighlyAvailable
+    Type: AWS::EC2::Route
     Properties:
       RouteTableId: !Ref PrivateAZBRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref AZBNatGateway
 
   PrivateAZBRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
     Condition: HighlyAvailable
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateAZBSubnet
       RouteTableId: !Ref PrivateAZBRouteTable
-
-  NotHighlyAvailablePrivateAZBRoute:
-    Type: AWS::EC2::Route
-    Condition: NotHighlyAvailable
-    Properties:
-      RouteTableId: !Ref PrivateAZBRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref AZANatGateway
 
   NotHighlyAvailablePrivateAZBRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Condition: NotHighlyAvailable
     Properties:
       SubnetId: !Ref PrivateAZBSubnet
-      RouteTableId: !Ref PrivateAZBRouteTable
+      RouteTableId: !Ref PrivateAZARouteTable
 
   # Third Availability Zone
   PrivateAZCSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref Vpc
-      CidrBlock: !Ref PrivateAZCSubnetBlock
+      CidrBlock: !FindInMap [AccountMap, !Ref 'AWS::AccountId', PrivateAZCSubnetBlock]
       AvailabilityZone: !Select [2, !GetAZs ""]
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-private-${AZ}
+            - private-${AZ}
             - { AZ: !Select [2, !GetAZs ""] }
         - Key: Type
           Value: private
 
   PrivateAZCRouteTable:
+    Condition: HighlyAvailable
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref Vpc
       Tags:
         - Key: Name
           Value: !Sub
-            - ${AWS::StackName}-private-${AZ}
+            - private-${AZ}
             - { AZ: !Select [2, !GetAZs ""] }
         - Key: Type
           Value: private
@@ -431,21 +404,13 @@ Resources:
     Properties:
       SubnetId: !Ref PrivateAZCSubnet
       RouteTableId: !Ref PrivateAZCRouteTable
-  
-  NotHighlyAvailablePrivateAZCRoute:
-    Type: AWS::EC2::Route
-    Condition: NotHighlyAvailable
-    Properties:
-      RouteTableId: !Ref PrivateAZCRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref AZANatGateway
 
   NotHighlyAvailablePrivateAZCRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Condition: NotHighlyAvailable
     Properties:
       SubnetId: !Ref PrivateAZCSubnet
-      RouteTableId: !Ref PrivateAZCRouteTable
+      RouteTableId: !Ref PrivateAZARouteTable
 
 
   S3VPCEndpoint:
@@ -454,8 +419,6 @@ Resources:
       RouteTableIds:
         - !Ref PublicRouteTable
         - !Ref PrivateAZARouteTable
-        - !Ref PrivateAZBRouteTable
-        - !Ref PrivateAZCRouteTable
       ServiceName: !Join
         - ""
         - - com.amazonaws.
@@ -469,6 +432,32 @@ Resources:
       RouteTableIds:
         - !Ref PublicRouteTable
         - !Ref PrivateAZARouteTable
+      ServiceName: !Join
+        - ""
+        - - com.amazonaws.
+          - !Ref "AWS::Region"
+          - .dynamodb
+      VpcId: !Ref Vpc
+
+  HighlyAvailableS3VPCEndpoint:
+    Condition: HighlyAvailable
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      RouteTableIds:
+        - !Ref PrivateAZBRouteTable
+        - !Ref PrivateAZCRouteTable
+      ServiceName: !Join
+        - ""
+        - - com.amazonaws.
+          - !Ref "AWS::Region"
+          - .s3
+      VpcId: !Ref Vpc
+
+  HighlyAvailableDynamoDBVPCEndpoint:
+    Condition: HighlyAvailable
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      RouteTableIds:
         - !Ref PrivateAZBRouteTable
         - !Ref PrivateAZCRouteTable
       ServiceName: !Join
