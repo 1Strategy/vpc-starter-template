@@ -67,23 +67,25 @@ aws cloudformation validate-template --template-body file://network.yaml
 
 ### Deploy Stack
 
-You will need to verify you have the appropriate parameters file for the AWS Region and account/environment you want to deploy to. See `./parameters/<region>/<acct>.json`. For example `parameters/us-west-2/dev.json`.
+You will need to verify you have the appropriate parameters file for the AWS Region and account/environment you want to deploy to. See `./parameters/<region>/<acct>.ini`. For example `parameters/us-west-2/dev.ini`.
+
+Change directories to the parent of this repository (vpc-starter-template/)
+
+Run this command in the AWS CLI:
 
 ```shell
-aws cloudformation create-stack --template-body file://network.yaml --stack-name main-vpc --parameters file://parameters/us-west-2/dev.json
+aws cloudformation deploy --template-file network.yaml --stack-name main-vpc --parameter-overrides $(cat parameters/us-west-2/dev.ini)
 ```
 
 ### Update Stack
 
-```shell
-aws cloudformation update-stack --template-body file://network.yaml --stack-name main-vpc --parameters file://parameters/us-west-2/dev.json
-```
+Updates to the stack can also be done using the deploy command above.
 
 ## Template Outputs/Exports
 
 AWS CloudFormation supports [exporting Resource names and properties](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-exports.html). You can import these [Cross-Stack References](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html) in other templates.
 
-This VPC template exports the following values for use in other CloudFormaton templates. Each export is prefixed with the **Stack Name**. For example, if you name the stack "main-vpc" when you launch it, the VPC's public route table will be exported as "_main-vpc-public-rtb_"
+This VPC template exports the following values for use in other CloudFormation templates. Each export is prefixed with the **Stack Name**. For example, if you name the stack "main-vpc" when you launch it, the VPC's public route table will be exported as "_main-vpc-public-rtb_"
 
 | Export                         | Description                                          | Example         |
 |--------------------------------|------------------------------------------------------|-----------------|
