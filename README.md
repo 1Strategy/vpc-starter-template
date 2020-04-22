@@ -62,7 +62,7 @@ If you'd like to deploy this stack via the command line, you'll need the AWS CLI
 ### Validate/Lint Stack
 
 ```shell
-aws cloudformation validate-template --template-body file://network.yaml
+aws cloudformation validate-template --template-body file://network.yaml --profile training
 ```
 
 ### Deploy Stack
@@ -74,7 +74,7 @@ Change directories to the parent of this repository (vpc-starter-template/)
 Run this command in the AWS CLI:
 
 ```shell
-aws cloudformation deploy --template-file network.yaml --stack-name main-vpc --parameter-overrides $(cat parameters/us-west-2/dev.ini)
+aws cloudformation deploy --template-file network.yaml --stack-name main-vpc --parameter-overrides $(cat parameters/us-west-2/dev.ini) --profile training
 ```
 
 ### Update Stack
