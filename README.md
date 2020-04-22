@@ -43,11 +43,11 @@ To deploy this VPC template, you'll need to know the VPC CIDR block, the three p
 |---------------------------|------------------------------|--------------|
 | _VpcCidrParam_            | IPv4 CIDR block (/16 to /28) | 10.0.0.0/16  |
 | _PublicAZASubnetBlock_    | AZ A public subnet block     | 10.0.32.0/20 |
-| _PublicAZBSubnetBlock_    | AZ B public subnet block     |      ""      |
-| _PublicAZCSubnetBlock_    | AZ C public subnet block     |      ""      |
-| _PrivateAZASubnetBlock_   | AZ A private subnet block    | 10.0.64.0/19 |
-| _PrivateAZBSubnetBlock_   | AZ B private subnet block    |      ""      |
-| _PrivateAZCSubnetBlock_   | AZ C private subnet block    |      ""      |
+| _PublicAZBSubnetBlock_    | AZ B public subnet block     | 10.0.96.0/20 |
+| _PublicAZCSubnetBlock_    | AZ C public subnet block     | 10.0.160.0/20|
+| _PrivateAZASubnetBlock_   | AZ A private subnet block    | 10.0.0.0/19  |
+| _PrivateAZBSubnetBlock_   | AZ B private subnet block    | 10.0.64.0/19 |
+| _PrivateAZCSubnetBlock_   | AZ C private subnet block    | 10.0.128.0/19|
 | _HighlyAvailable_         | Highly Available NAT config  |     true     |
 
 
@@ -67,14 +67,14 @@ aws cloudformation validate-template --template-body file://network.yaml
 
 ### Deploy Stack
 
-You will need to verify you have the appropriate parameters file for the AWS Region and account/environment you want to deploy to. See `./parameters/<region>/<acct>.ini`. For example `parameters/us-west-2/dev.ini`.
+You will need to verify you have the appropriate parameters file for the AWS Region and account/environment you want to deploy to. See `./parameters/<region>/<acct>.json`. For example `parameters/us-west-2/dev.json`.
 
 Change directories to the parent of this repository (vpc-starter-template/)
 
 Run this command in the AWS CLI:
 
 ```shell
-aws cloudformation deploy --template-file network.yaml --stack-name main-vpc --parameter-overrides $(cat parameters/us-west-2/dev.ini)
+aws cloudformation deploy --template-file network.yaml --stack-name main-vpc --parameter-overrides file://parameters/us-west-2/dev.json
 ```
 
 ### Update Stack
