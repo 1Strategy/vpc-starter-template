@@ -528,6 +528,8 @@ Resources:
   VpcFlowLogs:
     Type: AWS::EC2::FlowLog
     Condition: VpcFlowLogs
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       DeliverLogsPermissionArn: !GetAtt FlowLogsRole.Arn
       LogDestination: !GetAtt FlowLogLogGroup.Arn
