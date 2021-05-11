@@ -464,6 +464,7 @@ Resources:
           - !Ref "AWS::Region"
           - .s3
       VpcId: !Ref Vpc
+      VpcEndpointType: Gateway
 
   DynamoDBVPCEndpoint:
     Type: "AWS::EC2::VPCEndpoint"
@@ -479,3 +480,4 @@ Resources:
           - !Ref "AWS::Region"
           - .dynamodb
       VpcId: !Ref Vpc
+      VpcEndpointType: Gateway
