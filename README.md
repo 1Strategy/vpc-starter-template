@@ -37,7 +37,7 @@ You are free to use any /16 to /28 CIDR block in the RFC 1918 private address ra
 
 ## VPC Template Parameters
 
-To deploy this VPC template, you'll need to know the VPC CIDR block, the three public, and three private subnet CIDR blocks. You will also choose whether the VPC will support highly available NAT Gateways and VPC Flow Logs, or, by default, a more cost effective single NAT Gateway without VPC Flow Logs enabled.
+To deploy this VPC template, you'll need to know the VPC CIDR block, the three public, and three private subnet CIDR blocks. You will need to choose whether the VPC will support highly available NAT Gateways, or, by default, a more cost effective single NAT Gateway. You will also need to choose whether VPC Flow Logs will be enabled, or disabled (default behavior is disabled to reduce costs).
 
 | Parameter                 | Description                  | Example      |
 |---------------------------|------------------------------|--------------|
