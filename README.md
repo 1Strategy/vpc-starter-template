@@ -37,7 +37,7 @@ You are free to use any /16 to /28 CIDR block in the RFC 1918 private address ra
 
 ## VPC Template Parameters
 
-To deploy this VPC template, you'll need to know the VPC CIDR block, the three public, and three private subnet CIDR blocks. You will also choose whether the VPC will support highly available NAT Gateways, or, by default, a more cost effective single NAT Gateway.
+To deploy this VPC template, you'll need to know the VPC CIDR block, the three public, and three private subnet CIDR blocks. You will need to choose whether the VPC will support highly available NAT Gateways, or, by default, a more cost effective single NAT Gateway. You will also need to choose whether VPC Flow Logs will be enabled, or disabled (default behavior is disabled to reduce costs).
 
 | Parameter                 | Description                  | Example      |
 |---------------------------|------------------------------|--------------|
@@ -49,9 +49,21 @@ To deploy this VPC template, you'll need to know the VPC CIDR block, the three p
 | _PrivateAZBSubnetBlock_   | AZ B private subnet block    | 10.0.64.0/19 |
 | _PrivateAZCSubnetBlock_   | AZ C private subnet block    | 10.0.128.0/19|
 | _HighlyAvailable_         | Highly Available NAT config  |     true     |
+| _EnableVpcFlowLogs_       | VPC Flow Logs                |     true     |
 
 
 To make it easier to specify these parameters on the command line, you can use the example Parameters files included in the `parameters/` directory.
+
+## VPC Flow Logs
+
+[VPC Flow Logs](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html) is a feature that allows you to capture information about IP traffic going to and from network interfaces in your VPC. This template is configured to deliver this data to a CloudWatch Logs Group called `FlowLogs/<CloudFormation Stack Name>`. Enabling VPC Flow Logs will increase your monthly usage costs (see [VPC Flow Logs Pricing](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html#flow-logs-pricing) and [CloudWatch Pricing](https://aws.amazon.com/cloudwatch/pricing/) pages).
+
+Per the AWS Docs, Flow logs can help you with a number of tasks, such as:
+- Diagnosing overly restrictive security group rules
+- Monitoring the traffic that is reaching your instance
+- Determining the direction of the traffic to and from the network interfaces
+
+VPC Flow Logs require an IAM role to give the VPC Flow Logs service permission to delivery flow logs to CloudWatch Logs. This IAM role only has permission to create and read CloudWatch log groups, log streams, and put log events.
 
 ## How to Deploy
 
@@ -75,6 +87,12 @@ Run this command in the AWS CLI:
 
 ```shell
 aws cloudformation deploy --template-file network.yaml --stack-name main-vpc --parameter-overrides file://parameters/us-west-2/dev.json
+```
+
+If you have the `EnableVpcFlowLogs` parameter set to `true`, you will need to add `--capabilities CAPABILITY_IAM` to the CLI command since enabling VPC Flow Logs requires creation of an IAM role to give the VPC Flow Logs service permission to write to CloudWatch Logs.
+
+```shell
+aws cloudformation deploy --template-file network.yaml --stack-name main-vpc --parameter-overrides file://parameters/us-west-2/dev.json --capabilities CAPABILITY_IAM
 ```
 
 ### Update Stack

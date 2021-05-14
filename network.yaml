@@ -70,9 +70,17 @@ Parameters:
     Default: "false"
     ConstraintDescription: must be true or false (case sensitive).
 
+  EnableVpcFlowLogs:
+    Type: String
+    Description: Optional configuration for enabling VPC Flow Logs sent to CloudWatch Logs. Default configuration has no VPC Flow Logs enabled.
+    AllowedPattern: "^(true|false)$"
+    Default: "false"
+    ConstraintDescription: must be true or false (case sensitive).
+
 Conditions:
   HighlyAvailable: !Equals [!Ref HighlyAvailableNat, "true"]
   NotHighlyAvailable: !Equals [!Ref HighlyAvailableNat, "false"]
+  VpcFlowLogs: !Equals [!Ref EnableVpcFlowLogs, "true"]
 Outputs:
   VpcId:
     Description: VPC Id
@@ -145,6 +153,8 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref VpcCidrParam
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}
@@ -431,7 +441,7 @@ Resources:
     Properties:
       SubnetId: !Ref PrivateAZCSubnet
       RouteTableId: !Ref PrivateAZCRouteTable
-  
+
   NotHighlyAvailablePrivateAZCRoute:
     Type: AWS::EC2::Route
     Condition: NotHighlyAvailable
@@ -462,6 +472,7 @@ Resources:
           - !Ref "AWS::Region"
           - .s3
       VpcId: !Ref Vpc
+      VpcEndpointType: Gateway
 
   DynamoDBVPCEndpoint:
     Type: "AWS::EC2::VPCEndpoint"
@@ -477,3 +488,52 @@ Resources:
           - !Ref "AWS::Region"
           - .dynamodb
       VpcId: !Ref Vpc
+      VpcEndpointType: Gateway
+
+  # VPC Flow Logs
+  FlowLogLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: VpcFlowLogs
+    Properties:
+      LogGroupName: !Sub "FlowLogs/${AWS::StackName}"
+      RetentionInDays: 7
+
+  FlowLogsRole:
+    Type: AWS::IAM::Role
+    Condition: VpcFlowLogs
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - vpc-flow-logs.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: AllowPublishingFlowLogsToCloudWatch
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: "*"
+
+  VpcFlowLogs:
+    Type: AWS::EC2::FlowLog
+    Condition: VpcFlowLogs
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      DeliverLogsPermissionArn: !GetAtt FlowLogsRole.Arn
+      LogDestination: !GetAtt FlowLogLogGroup.Arn
+      LogDestinationType: cloud-watch-logs
+      ResourceId: !Ref Vpc
+      ResourceType: VPC
+      TrafficType: ALL

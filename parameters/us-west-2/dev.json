@@ -6,5 +6,6 @@
     "PublicAZBSubnetBlock=10.0.96.0/20",
     "PrivateAZCSubnetBlock=10.0.128.0/19",
     "PublicAZCSubnetBlock=10.0.160.0/20",
-    "HighlyAvailableNat=true"
+    "HighlyAvailableNat=true",
+    "EnableVpcFlowLogs=true"
 ]
